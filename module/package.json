@@ -7,6 +7,10 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Edwin Attevelt",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/topiclogger/topiclogger.git"
+  },
   "license": "MIT",
   "dependencies": {
     "winston": "^3.11.0"
