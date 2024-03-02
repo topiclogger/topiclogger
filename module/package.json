@@ -1,0 +1,14 @@
+{
+  "name": "topiclogger",
+  "version": "0.1.0",
+  "description": "A logger powered by Winston that allows different transports per topic.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Edwin Attevelt",
+  "license": "MIT",
+  "dependencies": {
+    "winston": "^3.11.0"
+  }
+}

@@ -7,7 +7,7 @@ Allow custom handling of log message of a specific topic
 ## Example of use
 
 ``````
-const log = require('toppiclogger');
+const log = require('toppiclogger').logger;
 
 log.init(['general', 'security', 'development'])
 
@@ -23,7 +23,7 @@ log.development.warning('No unit test has been written for this function!');
 
 By default all messages go to standerd out STDOUT, i.e. to console.
 
-It will be possible to differentiate the destion(s) per topic. (NOT IMPLEMENTED YET)
+It will be possible to differentiate the destination(s) per topic. (NOT IMPLEMENTED YET)
 
 ## FAQ
 
