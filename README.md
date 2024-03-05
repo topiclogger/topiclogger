@@ -4,10 +4,10 @@ A topic focussed logger that is build on top of Winston that allows dynamic conf
 
 For Development it is as easy as:
 ``` js
-const log = require('topiclogger').logger;
+const log = require('topiclogger').Logger;
 
 // Define topics:
-log.init('general', 'security', 'database', 'development');
+log.init(['general', 'security', 'database', 'development']);
 
 // And use the topic to log something:
 log.general.info('Application started');
