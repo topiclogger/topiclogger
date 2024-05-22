@@ -1,6 +1,6 @@
 {
   "name": "topiclogger",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "A logger powered by Winston that allows different transports per topic.",
   "main": "index.js",
   "scripts": {
