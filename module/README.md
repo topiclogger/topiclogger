@@ -11,7 +11,7 @@ log.init(['general', 'security', 'database', 'development']);
 
 // And use the topic to log something:
 log.general.info('Application started');
-log.security.notice('User joe@example.com failed to login');
+log.security.warn('User joe@example.com failed to login');
 log.development.error('Unhandled exception x occured at source.js:123');
 ```
 For DevOps it is as easy as defining a json file:
@@ -97,6 +97,15 @@ log.winston.transports.DailyRotateFile = require('winston-daily-rotate-file');
 You can use all options that are available on your transport of choise.
 
 Note: The "type" and "topics" options are always mandatory since it defines which transport type to use for which topic. The required transport may need additional mandatory options (e.g. "filename" for a file transport).
+
+## Custom log levels
+
+You can use custom log levels by adding an options object to the initialization call:
+
+```
+log.init(['general', 'security', 'development'], { levels: {custom1: 0, custom2: 1}})
+```
+See [Winston documentation](https://github.com/winstonjs/winston?tab=readme-ov-file#logging-levels) for examples.
 
 ## Worker threads and child processes
 

@@ -3,12 +3,11 @@ const winston = require('winston');
 log.winston.transports.DailyRotateFile = require('winston-daily-rotate-file')
 const { Worker } = require('node:worker_threads');
 const { fork } = require('node:child_process');
-
-log.init(['general', 'security', 'development'])
-
+log.init(['general', 'security', 'development'], { levels: winston.config.syslog.levels})
 log.general.info('App started!');
-log.security.warn('App does not have any security features!');
-log.development.warn('Something wrong?!');
+log.general.alert('Some alert')
+log.security.warning('App does not have any security features!');
+log.development.warning('Something wrong?!');
 
 require('./test2');
 

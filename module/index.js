@@ -15,7 +15,7 @@ class Logger {
         return winston;
     }
 
-    static init(topicsIn=[]) {
+    static init(topicsIn=[], options) {
         if (isMainThread) {      
             const bc = new BroadcastChannel('topic-logger');
             bc.unref();
@@ -27,24 +27,31 @@ class Logger {
         }
         for (const topic of topicsIn) {
             assert.equal(this[topic], undefined, `Topic "${topic}" is illegal!`);
-            this[topic] = this.newTopicLogger(topic);
+            this[topic] = this.newTopicLogger(topic, options);
         }
         config = true;
     }
 
-    static newTopicLogger(topic) {
+    static newTopicLogger(topic, options={}) {
+
         if (isMainThread && !channel) {
-            return Logger.nonProxyLogger(topic);
+            return Logger.nonProxyLogger(topic, options);
         } else {
-            return winston.loggers.add(topic, {
-                level: 'info',
-                format: winston.format.json(),
-                defaultMeta: { topic },
-                transports: [new ProxyLogger()],
-            });
+            const loggerOptions = Object.assign(
+                {
+                    level: 'info',
+                    format: winston.format.json(),
+                    defaultMeta: { topic },
+                },
+                options,
+                {
+                    transports: [new ProxyLogger()],
+                }
+            );
+            return winston.loggers.add(topic, loggerOptions);
         }
     }
-    static nonProxyLogger(topic) {
+    static nonProxyLogger(topic, options={}) {
         const mappedTransports = config.transports.filter((transport) => {
             if (transport?.topics === '*') return true;
             if (transport?.topics === topic) return true;
@@ -82,12 +89,18 @@ class Logger {
             const transport = winston.transports[transportKey];
             transports.push(new transport(altConfig ?? config));
         }
-        return winston.loggers.add(topic, {
-            level: 'info',
-            format: winston.format.json(),
-            defaultMeta: { topic },
-            transports,
-        });
+        const loggerOptions = Object.assign(
+            {
+                level: 'info',
+                format: winston.format.json(),
+                defaultMeta: { topic },
+            },
+            options,
+            {
+                transports,
+            }
+        );
+        return winston.loggers.add(topic, loggerOptions);
     }
 
     static readConfig() {

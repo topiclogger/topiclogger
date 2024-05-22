@@ -1,3 +1,4 @@
 const log = require('topiclogger').Logger;
 
-log.security.info('TEST2');
+log.security.notice('TEST2a');
+log.security.info('TEST2b');
