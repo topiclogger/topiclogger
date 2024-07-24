@@ -8,6 +8,7 @@ const process = require('node:process');
 const {channel} = process;
 
 let config;
+const pendingSystemMessages = [];
 
 class Logger {
 
@@ -25,6 +26,12 @@ class Logger {
             assert.equal(config, undefined, `topiclogger.init() can only be called once!`);
             this.readConfig();
         }
+        this.topiclogger = this.newTopicLogger('topiclogger', options)
+        while (pendingSystemMessages.length) {
+            const {level, message} = pendingSystemMessages.shift();
+            this.topiclogger[level](message);
+        }
+
         for (const topic of topicsIn) {
             assert.equal(this[topic], undefined, `Topic "${topic}" is illegal!`);
             this[topic] = this.newTopicLogger(topic, options);
@@ -115,21 +122,21 @@ class Logger {
     static readConfig() {
         let unparsedConfig;
         if (process.env.TOPICLOGGER_CONFIG) {
-            console.log(`Using environment variable TOPICLOGGER_CONFIG for configuration`);
+            this.logTopicLoggerMessage('info', `Using environment variable TOPICLOGGER_CONFIG for configuration`);
             unparsedConfig = process.env.TOPICLOGGER_CONFIG;
         } else {
-            console.log(`Environment variable TOPICLOGGER_CONFIG not found, looking for a file`);
+            this.logTopicLoggerMessage('info', `Environment variable TOPICLOGGER_CONFIG not found, looking for a file`);
             let fileName = process.env.TOPICLOGGER_CONFIG_FILE;
-            if (fileName) console.log(`TOPICLOGGER_CONFIG_FILE set to ${fileName}`);
+            if (fileName) this.logTopicLoggerMessage('info',`TOPICLOGGER_CONFIG_FILE set to ${fileName}`);
             else {
                 fileName = path.resolve(process.cwd(), 'topiclogger.config');
-                console.log(`TOPICLOGGER_CONFIG_FILE not set, looking for ${fileName}`);
+                this.logTopicLoggerMessage('info', `TOPICLOGGER_CONFIG_FILE not set, looking for ${fileName}`);
             }
             try {
                 unparsedConfig = fs.readFileSync(fileName, 'UTF-8');                
             } catch (error) {
                 if (error.code === 'ENOENT') {
-                    console.warn(`File "${fileName}" not found! Log entries will be written to STDIO.`);
+                    this.logTopicLoggerMessage('warn', `File "${fileName}" not found! Log entries will be written to STDIO.`);
                     unparsedConfig = JSON.stringify({
                         transports: [
                             {
@@ -142,8 +149,9 @@ class Logger {
             }
             try {
                 config = JSON.parse(unparsedConfig);
+                this.logTopicLoggerMessage('info', 'Config successfully read.')
             } catch (error) {
-                console.error(`Error parsing config: ${error.message}`)
+                this.logTopicLoggerMessage('error', `Error parsing config: ${error.message}`)
                 throw error;
             }
         }
@@ -151,6 +159,16 @@ class Logger {
 
     static watchChildProcess(child) {
         child.on('message', (data) => this[data.topic].log(data));
+    }
+
+    static logTopicLoggerMessage(level, message) {
+        if (this.topiclogger) this.topiclogger[level](message);
+        else pendingSystemMessages.push(
+            {
+                level,
+                message
+            }
+        );
     }
 }
 
