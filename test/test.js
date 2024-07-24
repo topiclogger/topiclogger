@@ -6,7 +6,8 @@ const { fork } = require('node:child_process');
 log.init(['general', 'security', 'development'], { levels: winston.config.syslog.levels})
 log.general.info('App started!');
 log.general.alert('Some alert')
-log.security.warning('App does not have any security features!');
+log.security.info('App does not have any security features!', {private: true});
+log.security.info({foo: 'bar'}, {private: true});
 log.development.warning('Something wrong?!');
 
 require('./test2');

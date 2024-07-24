@@ -87,12 +87,21 @@ class Logger {
             const transportKey = Object.keys(winston.transports).find((item) => item.toLowerCase() === type.toLowerCase());
             if (!transportKey) throw new Error(`Transport type "${transport.type}" is not supported!`);
             const transport = winston.transports[transportKey];
+            if (config.filter) {
+                assert.equal(typeof config.filter, 'string', `Unexpect filter value: expected string, got ${typeof config.filter}`);
+                let conditions = config.filter?.split(/ and /i);
+                conditions = conditions.map((item) => {
+                     let {groups: {key, type, value}} = item.match(/^(?<key>[\w\.]+)\s*(?<type>=|==|!=)\s*"?(?<value>\w+)"?$/);
+                     if (value.match(/undefined/i)) value = undefined;
+                     return {key, type, value};
+                });
+                config.format = filterMessage({conditions});
+            }
             transports.push(new transport(altConfig ?? config));
         }
         const loggerOptions = Object.assign(
             {
                 level: 'info',
-                format: winston.format.json(),
                 defaultMeta: { topic },
             },
             options,
@@ -170,5 +179,31 @@ class ProxyLogger extends Transport {
       callback();
     }
   };
-  
+
+const filterMessage = winston.format((info, opts) => {
+    for (const condition of opts.conditions) {
+        const keyList = condition.key.split('.');
+        let target = info?.[keyList.shift()];
+        while (target && keyList.length > 0) {
+            target = target[keyList.shift()];
+        }
+        switch (condition.type) {
+            case '=':
+            case '==':
+                if (target?.toString() == condition.value) {
+                    continue; // match, next condition..
+                }
+                return false; // No match
+            case '!=':
+                if (target?.toString() != condition.value) {
+                    continue; // match, next condition..
+                }
+                return false; // No match
+            default:
+                return false; // No match
+        }
+    }
+    return info;
+  });
+
 module.exports = {Logger};
