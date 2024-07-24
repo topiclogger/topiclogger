@@ -71,6 +71,9 @@ N.B. If you do not set "TOPICLOGGER_CONFIG_FILE" environment variable, TopicLogg
 
 N.B. If no file is found, all log entries will go to console.
 
+### Route topiclogger messages
+It is possible to route Topic Logger messages via topic "topiclogger" in the same way as you would with other topics.
+
 ## Transports
 
 ### Supported
