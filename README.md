@@ -98,6 +98,36 @@ You can use all options that are available on your transport of choise.
 
 Note: The "type" and "topics" options are always mandatory since it defines which transport type to use for which topic. The required transport may need additional mandatory options (e.g. "filename" for a file transport).
 
+### Filtering
+You can filter on info or message properties. Use the filter property in the transport for this.
+
+Example:
+```
+{
+    "transports": [
+        {
+            "topics": "security",
+            "type": "console",
+            "filter": "private=true"
+        },
+        <..>
+}
+```
+N.B. Allowed filter types: "=", "==" (same as "=") and "!="
+You can also use nested and multiple conditions:
+```
+{
+    "transports": [
+        {
+            "topics": "security",
+            "type": "console",
+            "filter": "level=debug and message.foo=bar"
+        },
+        <..>
+}
+```
+N.B. Only "and" conditions are supported, so "or" will not work. 
+
 ## Custom log levels
 
 You can use custom log levels by adding an options object to the initialization call:
